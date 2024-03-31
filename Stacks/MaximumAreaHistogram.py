@@ -38,6 +38,7 @@ class Solution:
         The area for this rectangle is arr[i]*(i-(nsl+1)) + arr[i]*((nsr-1)-i)
         """
         maxHistArea = -inf
+        n = len(histogram)
         leftSmallest = self.getNearestSmallerElementIndexLeft(histogram, n)
         rightSmallest = self.getNearestSmallerElementIndexRight(histogram, n)
         
