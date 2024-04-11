@@ -22,6 +22,25 @@ Output: [-1,-1]
 """
 from typing import List
 
+def getLastOccurence(nums:List[int], target:int) -> int:
+    result = -1
+    N = len(nums)
+    start, end = 0, N-1
+    while(start <= end):
+        middle = start + (end-start)//2
+        if nums[middle] == target:
+            result = middle
+            start = middle+1
+        elif target > nums[middle]:
+            start = middle + 1
+        elif target < nums[middle]:
+            end = middle - 1
+    return result
+
+if __name__=="__main__":
+    arr = [2, 4, 5, 6, 8, 11, 11, 11, 11, 32, 43]
+    query = 11
+    print(getLastOccurence(arr, query))
 class Solution:
     def searchRange(self, nums: List[int], target: int) -> List[int]:
         N = len(nums)
