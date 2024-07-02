@@ -52,27 +52,39 @@ Step3 --> Find base condition
         So the base condition can be if i >= j
 """
 
+from os import *
+from sys import *
+from collections import *
+from math import *
 from typing import List
-import math
 
-def solveCost(arr:List[int], i, j) -> int:
-    if i >= j:
-        return 0
-    minval = math.inf
-    for k in range(i,j):
-        tempAns = solveCost(arr, i, k) + solveCost(arr, k+1, j) + arr[i-1] * arr[k] * arr[j]
-        minval = min(minval, tempAns)
-    return minval
+def bottomUp(arr:List[int], n:int):
+	dp = [[0]*n for i in range(n)]
+	for i in range(n-1, 0, -1):
+		for j in range(i+1, n): # i+1 to n-1 because, j is always on the right(imagine 1,2,3,4 and I need to multiply everything from 1 to n-1, so j in partition is on the right)
+			minI = inf
+			for k in range(i, j):
+				ans = arr[i-1]*arr[k]*arr[j] + dp[i][k] + dp[k+1][j]
+				minI = min(minI, ans)
+			dp[i][j] = minI
+	return dp[1][n-1]
 
+def recursiveMCM(arr:List[int], n:int, i:int, j:int, dp:List[List[int]]):
+    # base case is when i and j are equal. Which means, there's just one single matrix in question
+	if dp[i][j] != -1:
+		return dp[i][j] 
+	if i==j:
+		dp[i][j] = 0
+		return 0
+	minI = inf
+	for k in range(i, j):
+		ans = recursiveMCM(arr, n, i, k, dp) + recursiveMCM(arr, n, k+1, j, dp) + arr[i-1]*arr[k]*arr[j]
+		minI = min(minI, ans)
+	dp[i][j] = minI
+	return minI
 
-def getMinimumCostOfMultiplication(arr: List[int], N:int) -> int:
-    i = 1
-    j = N-1
-    return solveCost(arr, i, j)
-
-if __name__=="__main__":
-    arr = [40, 20, 30, 10, 30]
-    N = len(arr)
-
-    print(getMinimumCostOfMultiplication(arr, N))
-
+def matrixMultiplication(arr:List[int], n:int):
+	return bottomUp(arr, n)
+	# dp = [[-1]*(n+1) for i in range(n+1)]
+	# return recursiveMCM(arr, n, 1, n-1, dp)
+	
