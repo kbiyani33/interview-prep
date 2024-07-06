@@ -1,3 +1,38 @@
+from os import *
+from sys import *
+from collections import *
+from math import *
+from typing import List
+
+
+def maxValueInKnapsack(weights:List[int], values:List[int], capacity:int) -> int:
+    n = len(weights)
+    dp = [[0 for _ in range(capacity+1)] for _ in range(n+1)]
+
+    # if my capacity is 0, then I can never take a value, so dp ans is 0
+    # if my array elements are 0 even then I cannot take anything because obvious no elements, so no value :)
+
+    for i in range(n-1, -1, -1):
+        for j in range(1, capacity+1):
+            if weights[i] > j:
+                dp[i][j] = dp[i+1][j]
+            else:
+                dp[i][j] = max(values[i] + dp[i+1][j-weights[i]], dp[i+1][j])
+    
+    return dp[0][capacity]
+
+
+if __name__=="__main__":
+    t = int(input())
+    while(t>0):
+        weights, values, capacity = [], [], []
+        weights = [int(i) for i in input().strip().split(" ")]
+        values = [int(i) for i in input().strip().split(" ")]
+        capacity = int(input())
+
+        print(maxValueInKnapsack(weights, values, capacity))
+        t -= 1
+
 from typing import List
 class Solution:
 

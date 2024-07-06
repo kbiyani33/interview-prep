@@ -2,7 +2,7 @@ from typing import List
 from math import inf
 class Solution:
     def minimumDifference(self, nums: List[int]) -> int:
-        n, totalSum = sum(nums), len(nums)
+        totalSum, n = sum(nums), len(nums)
 
         dp = [[False for j in range(totalSum+1)] for i in range(n+1)]
 
