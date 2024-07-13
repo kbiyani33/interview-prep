@@ -30,18 +30,20 @@ class Solution:
     def search(self, nums: List[int], target: int) -> int:
         start, end = 0, len(nums)-1
         while start<=end:
-            middle = start + (end-start) // 2
-            if nums[middle] == target:
-                return middle
-            if nums[start] <= nums[middle]: # left half sorted
-                if nums[start] <= target < nums[middle]:
-                    end = middle-1
+            mid = start+(end-start)//2
+            if nums[mid]==target:
+                return mid
+            # identify the sorted portion
+            if nums[mid]<nums[end]:
+                if nums[mid]<target<=nums[end]:
+                    start = mid+1
                 else:
-                    start = middle + 1
+                    end = mid-1
             else:
-                if nums[middle] < target <= nums[end]:
-                    start = middle+1
+                if nums[start]<=target<nums[mid]:
+                    end=mid-1
                 else:
-                    end = middle-1
+                    start=mid+1
+                
         return -1
         

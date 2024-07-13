@@ -52,3 +52,22 @@ class Solution:
             
         
         return maxHistArea
+    
+class Solution:
+    def largestRectangleArea(self, heights: List[int]) -> int:
+        stack, maxA = [], -inf
+        n = len(heights)
+        for i in range(n+1):
+            while stack and (i==n or heights[stack[-1]] >= heights[i]):
+                top = stack.pop()
+                height = heights[top]
+                width = 0
+                if stack:
+                    width = (i-stack[-1]-1)
+                else:
+                    width = i
+                maxA = max(maxA, width*height)
+            stack.append(i)
+        return maxA
+
+        

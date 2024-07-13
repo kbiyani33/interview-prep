@@ -36,17 +36,25 @@ Corner Cases:
 	•	Array has only one element, which is the peak.
 	•	Peak is at the first or last index of the array.
 """
-import math
+
 from typing import List
 class Solution:
     def findPeakElement(self, nums: List[int]) -> int:
-        if len(nums) == 1:
+        n = len(nums)
+        if n==1:
             return 0
-        start, end = 0, len(nums)-1
-        while(start<end):
-            middle = start + (end-start)//2
-            if nums[middle+1] > nums[middle]:
-                start = middle+1
+        if nums[0] > nums[1]:
+            return 0
+        if nums[-1] > nums[-2]:
+            return n-1
+        start, end = 1, n-2
+        while start<=end:
+            mid = start + (end-start)//2
+            if nums[mid-1] < nums[mid] and nums[mid+1] < nums[mid]:
+                return mid
+            if nums[mid-1] <= nums[mid] <= nums[mid+1]: # This is upward slope example
+                start = mid+1
             else:
-                end = middle
-        return start
+                end = mid-1
+        return -1
+        
