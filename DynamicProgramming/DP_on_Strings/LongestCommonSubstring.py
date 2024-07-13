@@ -75,3 +75,21 @@ if __name__ == "__main__":
     end2 = time.time()
     print("DP time is " + str(end2-start2))
 
+
+
+
+# CODE STUDIO CODE
+def lcs(s: str, t: str) -> int:
+    m, n = len(s), len(t)
+    dp = [[0 for _ in range(n+1)] for _ in range(m+1)]
+
+    # I need to return dp[0][0] so i'll move backwards
+    ans = -1
+    for i1 in range(m-1, -1, -1):
+        for i2 in range(n-1, -1, -1):
+            if s[i1]==t[i2]:
+                dp[i1][i2] = 1 + dp[i1+1][i2+1]
+                ans = max(ans, dp[i1][i2])
+            else:
+                dp[i1][i2] = 0
+    return ans
