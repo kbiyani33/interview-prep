@@ -42,3 +42,48 @@ class Solution :
                 return ""
             result += s
         return result
+    
+from sys import *
+from collections import *
+from math import *
+import heapq
+
+def reArrangeString(s):
+    heap = []
+    freqMap = Counter(s)
+
+    for char, f in freqMap.items():
+        heapq.heappush(heap, (-f, char)) # max heap
+    res = ""
+    while len(heap) >= 2:
+        f1, c1 = heapq.heappop(heap)
+        f2, c2 = heapq.heappop(heap)
+        f1 *= -1
+        f2 *= -1
+        res += c1 + c2
+        f1 -= 1
+        f2 -= 1
+        if f1 > 0:
+            heapq.heappush(heap, (-f1, c1))
+        if f2>0:
+            heapq.heappush(heap, (-f2, c2))
+
+    # Check if one character is left in the heap
+    if len(heap) == 1:
+        f, c = heapq.heappop(heap)
+        f *= -1
+        # If the frequency of the remaining character is more than 1, return "not possible"
+        if f > 1:
+            return ""
+        else:
+            res += c
+
+    # If the length of the result string is not equal to the original string length, return "not possible"
+    # return res
+    if len(res) != len(s):
+        return ""
+
+    return res
+
+
+print(reArrangeString("bbbbb"))

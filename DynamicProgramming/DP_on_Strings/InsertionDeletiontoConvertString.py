@@ -46,3 +46,27 @@ def canYouMake(s1: str, s2: str) -> int:
     lcsLen = lcs(s1, s2)
     return len(s1) + len(s2) - 2*lcsLen
 
+
+#GFG
+#User function Template for python3
+def recursive_method2(s1, s2, i, j, dp):
+    m, n = len(s1), len(s2)
+    if i==m: return n-j
+    if j==n: return m-i
+    if dp[i][j] != -1: return dp[i][j]
+    
+    if s1[i] == s2[j]:
+        ans = recursive_method2(s1, s2, i+1, j+1, dp)
+    else:
+        insert = 1 + recursive_method2(s1, s2, i, j+1, dp)
+        delete = 1 + recursive_method2(s1, s2, i+1, j, dp)
+        ans = min(insert, delete)
+    dp[i][j] = ans
+    return ans
+
+def minOperations(s1, s2):
+    # code here
+    
+        
+    dp = [[-1 for _ in range(len(s2))] for _ in range(len(s1))]
+    return recursive_method2(s1, s2, 0, 0, dp)
