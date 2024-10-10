@@ -62,3 +62,44 @@ def sortList(head):
         temp = temp.next
     
     return head
+
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+def sortList(head):
+    if not head or not head.next:
+        return head
+    
+    zeroDummy = Node(data=0)
+    zeroTemp = zeroDummy
+
+    oneDummy = Node(data=1)
+    oneTemp = oneDummy
+
+    twoDummy = Node(data=2)
+    twoTemp = twoDummy
+
+    temp = head
+    while temp:
+        if temp.data == 0:
+            zeroTemp.next = temp
+            zeroTemp = zeroTemp.next
+        elif temp.data == 1:
+            oneTemp.next = temp
+            oneTemp = oneTemp.next
+        else:
+            twoTemp.next = temp
+            twoTemp = twoTemp.next
+        temp = temp.next
+    
+    """
+    Case 1 -> 0 exists
+        1.a -> 1 exists
+        1.b -> 1 doesn't exist and 2 exists
+    """ 
+    oneTemp.next = twoDummy.next
+    twoTemp.next = None
+    zeroTemp.next = oneDummy.next
+    return zeroDummy.next if zeroDummy.next else oneDummy.next if oneDummy.next else twoDummy.next
