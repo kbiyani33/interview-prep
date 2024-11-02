@@ -15,7 +15,7 @@ class Trie:
         self.root = TrieNode()
     
     def insertWord(self, word:str):
-        temp = self.root
+        temp = self.roots
         for i in range(len(word)):
             charIndex = ord(word[i]) - 97
             if not temp.chars[charIndex]:
