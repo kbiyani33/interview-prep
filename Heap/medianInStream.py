@@ -1,4 +1,5 @@
 import heapq
+from heapq import *
 """
 Algorithm - 
 small = max heap
@@ -10,6 +11,48 @@ if len(large) becomes greater than small then insert top of large back to small
 
 Median is top of small if len of small and large different else average of top of small and large
 """
+
+class MedianFinder:
+
+    def __init__(self):
+        self.leftMaxHeap = []
+        self.rightMinHeap = []
+        self.size = 0
+
+    def addNum(self, num: int) -> None:
+        self.size += 1
+        left, right = self.leftMaxHeap, self.rightMinHeap
+        # step 1 is to add it to max heap
+        heappush(left, -num)
+        # check if max of maxHeap is < min of minHeap
+        if left and right and -1 * left[0] > right[0]:
+            element = heappop(left) * -1
+            heappush(right, element)
+        # check if size differences if greater than 1
+        if len(left) > len(right) + 1:
+            element = heappop(left) * -1
+            heappush(right, element)
+        # ensuring left has equal or more elements than right
+        if len(right) > len(left):
+            element = heappop(right)
+            heappush(left, -element)
+
+    def findMedian(self) -> float:
+        
+        if self.size % 2 == 1:
+            return self.leftMaxHeap[0] * -1
+        #     if len(self.leftMaxHeap) > len(self.rightMinHeap):
+        #         return self.leftMaxHeap[0] * -1
+        #     return self.rightMinHeap[0]
+        else:
+            return (self.leftMaxHeap[0] * -1 + self.rightMinHeap[0]) / 2
+        
+
+
+# Your MedianFinder object will be instantiated and called as such:
+# obj = MedianFinder()
+# obj.addNum(num)
+# param_2 = obj.findMedian()
 class Solution:
     small, large = [], []
     def __init__(self):
