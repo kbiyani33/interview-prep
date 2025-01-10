@@ -26,6 +26,80 @@ By changing cell (2,1) ,we can obtain a connected group of 4 1's
 from typing import List
 import math
 
+from typing import List
+from collections import deque
+
+class DisjointSet:
+    def __init__(self, N:int) -> None:
+        self.size = [1]*(N+1)
+        self.parent = [i for i in range(N+1)]
+    
+    def getParent(self, u:int) -> int:
+        parent = self.parent
+        if parent[u] == u:
+            return u
+        parent[u] = self.getParent(parent[u])
+        return parent[u]
+    
+    def unionBySize(self, u:int, v:int) -> None:
+        parentU, parentV = self.getParent(u), self.getParent(v)
+        if parentU==parentV:
+            return
+        size, parent = self.size, self.parent
+        if size[parentU] < size[parentV]:
+            parent[parentU] = parentV
+            size[parentV] += size[parentU]
+        else:
+            parent[parentV] = parentU
+            size[parentU] += size[parentV]
+
+def getNode(row:int, col:int, m:int, n:int) -> int:
+    return row*n + col
+
+def maximumIslandSize(grid: List[List[int]]) -> int:
+    m, n = len(grid), len(grid[0])
+    ds = DisjointSet(m*n)
+    visited = [[False for _ in range(n)] for _ in range(m)]
+    for i in range(m):
+        for j in range(n):
+            if visited[i][j] or grid[i][j] == 0:
+                continue
+            # not visited and it's 1
+            q = deque()
+            q.append((i,j))
+            visited[i][j] = True
+            while q:
+                r,c = q.popleft()
+                parnode = r*n + c
+                neighbors = [[r,c-1],[r-1,c],[r,c+1],[r+1,c]]
+                for nr,nc in neighbors:
+                    if 0<=nr<m and 0<=nc<n and not visited[nr][nc] and grid[nr][nc] == 1:
+                        ds.unionBySize(parnode, nr*n+nc)
+                        visited[nr][nc] = True
+                        q.append((nr, nc))
+    
+    # Now my disjoint set is available
+    maxSize = max(ds.size)
+    # Now i will try to go through all 0's and convert them to 1 and see how to maximise it.
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j]==1 or visited[i][j]:
+                continue
+            # it's here means its's 0 and it's not visited
+            curSize = 0
+            neighborParents = set()
+            neighbors = [[i,j-1],[i-1,j],[i,j+1],[i+1,j]]
+            for nr, nc in neighbors:
+                if 0<=nr<m and 0<=nc<n and visited[nr][nc] and grid[nr][nc]==1:
+                    neighborParents.add(ds.getParent(nr*n+nc))
+            # now all neighbor parents are here
+            # I'll get the total size from all and add 1 and maximise it
+            for node in neighborParents:
+                curSize += ds.size[node]
+            maxSize = max(maxSize, curSize+1)
+    return maxSize
+
+
 class DisjointSet:
     def __init__(self, N:int):
         self.N = N

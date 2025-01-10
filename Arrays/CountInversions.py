@@ -1,4 +1,43 @@
 from typing import List
+
+import math
+
+class Solution33:
+    #User function Template for python3
+    #Function to count inversions in the array.
+    def mergeSortInversionCount(self, arr, low:int, high:int) -> int:
+        if low >= high:
+            return 0
+        count = 0
+        mid = low + (high-low)//2
+        count += self.mergeSortInversionCount(arr, low, mid)
+        count += self.mergeSortInversionCount(arr, mid+1, high)
+
+        temp = []
+        left, right = low, mid+1
+        while left <= mid and right <= high:
+            if arr[left] <= arr[right]:
+                temp.append(arr[left])
+                left += 1
+            else:
+                temp.append(arr[right])
+                count += mid - low + 1
+                right += 1
+        
+        while left <= mid:
+            temp.append(arr[left])
+            left += 1
+        
+        while right <= high:
+            temp.append(arr[right])
+            right += 1
+        
+        return count
+
+    def inversionCount(self, arr):
+        n = len(arr)
+        return self.mergeSortInversionCount(arr, 0, n-1)
+
 class Solution:
     #User function Template for python3
     
@@ -47,3 +86,8 @@ class Solution:
         # Your Code Here
         self.mergeSort(arr)
         return self.inversionCounter
+    
+
+
+soln = Solution33()
+print(soln.inversionCount([2,4,1,3,5]))
