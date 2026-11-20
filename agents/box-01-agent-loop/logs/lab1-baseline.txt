@@ -1,0 +1,1 @@
+Provider: github | Model: openai/gpt-4o-mini | Root: /workspaces/interview-prep
