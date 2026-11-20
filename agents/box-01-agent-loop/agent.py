@@ -1,12 +1,18 @@
 """
 Box 1 — A raw agent loop (no framework).
 
-Run inside GitHub Codespaces:
+Default: a local model via Ollama (no API key).
+    ollama pull qwen2.5:7b
     pip install openai
     python agent.py "What does this project do?"
 
-Codespaces already sets GITHUB_TOKEN, which works for GitHub Models.
-Locally with Ollama instead:  PROVIDER=ollama python agent.py "..."
+Any other OpenAI-compatible endpoint:
+    PROVIDER=custom BASE_URL=... API_KEY=... MODEL=... python agent.py "..."
+
+Lab knobs (env vars):
+    MAX_STEPS=2           cap the loop (exercise 5)
+    BARE_DESCRIPTIONS=1   replace tool descriptions with "tool" (exercise 4)
+    MODEL=openai/gpt-4.1  try a different model
 """
 
 import json
@@ -18,18 +24,18 @@ from openai import OpenAI
 # ---------------------------------------------------------------------------
 # 1. Model client (the only provider-specific part)
 # ---------------------------------------------------------------------------
-PROVIDER = os.getenv("PROVIDER", "github")
+PROVIDER = os.getenv("PROVIDER", "ollama")
 
 if PROVIDER == "ollama":
+    # Local model, no auth. Install from ollama.com, then: ollama pull qwen2.5:7b
     client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
     MODEL = os.getenv("MODEL", "qwen2.5:7b")
 else:
-    token = os.getenv("GITHUB_TOKEN")
-    if not token:
-        sys.exit("GITHUB_TOKEN not set. In Codespaces it is set automatically; "
-                 "elsewhere create a PAT with 'Models: read' and export it.")
-    client = OpenAI(base_url="https://models.github.ai/inference", api_key=token)
-    MODEL = os.getenv("MODEL", "openai/gpt-4o-mini")
+    # Any OpenAI-compatible endpoint: set PROVIDER=custom, BASE_URL, API_KEY, MODEL
+    base_url, api_key, MODEL = os.getenv("BASE_URL"), os.getenv("API_KEY"), os.getenv("MODEL")
+    if not (base_url and api_key and MODEL):
+        sys.exit("PROVIDER=custom needs BASE_URL, API_KEY and MODEL set.")
+    client = OpenAI(base_url=base_url, api_key=api_key)
 
 # ---------------------------------------------------------------------------
 # 2. Tool implementations (the HARNESS owns and executes these)
@@ -97,11 +103,18 @@ TOOLS = [
     },
 ]
 
-SYSTEM_PROMPT = (
-    "You are a repository assistant. Explore the project with the tools before answering. "
-    "Read only what you need. When you have enough information, answer concisely."
-)
+# Lab knob: BARE_DESCRIPTIONS=1 strips all descriptions (exercise 4)
+if os.getenv("BARE_DESCRIPTIONS") == "1":
+    for t in TOOLS:
+        t["function"]["description"] = "tool"
+        for prop in t["function"]["parameters"]["properties"].values():
+            prop.pop("description", None)
 
+SYSTEM_PROMPT = (
+    "You are a repository assistant. Never guess from file or folder names: "
+    "open files to confirm before stating what they contain. "
+    "Explore enough to answer accurately, then answer concisely."
+)
 # ---------------------------------------------------------------------------
 # 4. The agent loop
 # ---------------------------------------------------------------------------
@@ -115,6 +128,8 @@ def run(task: str, max_steps: int = 10) -> str:
     for step in range(max_steps):
         # (2) send the whole history + tool schemas to the model
         resp = client.chat.completions.create(model=MODEL, messages=messages, tools=TOOLS)
+        if isinstance(resp, str):  # SDK got a non-JSON body (auth page, proxy error, wrong URL)
+            sys.exit(f"Endpoint returned non-JSON instead of a completion:\n{resp[:500]}")
         msg = resp.choices[0].message
         messages.append(msg)
 
@@ -146,4 +161,5 @@ def run(task: str, max_steps: int = 10) -> str:
 if __name__ == "__main__":
     task = " ".join(sys.argv[1:]) or "What does this project do? Check the README and the main entry point."
     print(f"Provider: {PROVIDER} | Model: {MODEL} | Root: {ROOT}")
-    print("\n=== ANSWER ===\n" + run(task))
+    max_steps = int(os.getenv("MAX_STEPS", "10"))  # Lab knob: exercise 5
+    print("\n=== ANSWER ===\n" + run(task, max_steps=max_steps))
